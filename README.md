@@ -637,4 +637,53 @@ npm run release:publish:dry-run
 ```
 
 `release:pack` verifies the exact npm file list and fails if source, E2E,
-scripts, artifacts, source maps, or planning files enter the package.
+scripts, artifacts, source maps, or planning files enter the package. It also
+verifies that the staged publish manifest excludes `devDependencies` and release
+scripts.
+
+Publish with:
+
+```sh
+npm run release:publish
+```
+
+`release:publish` publishes from a temporary staging directory with a sanitized
+`package.json`. Direct `npm publish` from the repository root is intentionally
+blocked so published metadata cannot accidentally include `devDependencies`,
+test tooling, or repo-only release scripts.
+
+## Commit Conventions
+
+This repository uses Conventional Commits:
+
+```text
+type(scope): subject
+```
+
+`scope` is optional and should stay lowercase when present. Use concise,
+imperative subjects and one of these standard types:
+
+- `feat`
+- `fix`
+- `docs`
+- `chore`
+- `refactor`
+- `test`
+- `build`
+- `ci`
+- `perf`
+- `style`
+- `revert`
+
+Example release commit:
+
+```text
+chore(release): prepare 0.1.1
+```
+
+Install dependencies once to enable the local `husky` `commit-msg` hook, then
+optionally opt into the repository commit template:
+
+```sh
+git config commit.template .gitmessage.txt
+```

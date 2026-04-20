@@ -1,0 +1,14 @@
+# Format:
+#   type(scope): subject
+#
+# Scope is optional:
+#   type: subject
+#
+# Recommended types:
+#   feat, fix, docs, chore, refactor, test, build, ci, perf, style, revert
+#
+# Examples:
+#   feat(provider): add worklet listener fallback
+#   fix(android): preserve snapshot updates after rotation
+#   docs(release): document staging publish flow
+#   chore(release): prepare 0.1.1

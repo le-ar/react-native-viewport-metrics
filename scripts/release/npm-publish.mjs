@@ -14,6 +14,9 @@ const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
 const cacheDir = join(tmpdir(), "react-native-viewport-metrics-npm-cache");
 mkdirSync(cacheDir, { recursive: true });
 
+runNpm(["run", "release:verify:unit"]);
+runNpm(["run", "release:pack"]);
+
 const { publishDir } = createPublishDirectory();
 
 try {
@@ -22,7 +25,6 @@ try {
     [
       "publish",
       publishDir,
-      "--dry-run",
       "--access",
       "public",
       "--ignore-scripts",
@@ -49,4 +51,21 @@ try {
   }
 } finally {
   cleanupPublishDirectory(publishDir);
+}
+
+function runNpm(args) {
+  const result = spawnSync(npmCommand, args, {
+    cwd: process.cwd(),
+    stdio: "inherit",
+    env: {
+      ...process.env,
+      REACT_NATIVE_VIEWPORT_METRICS_ALLOW_PUBLISH: "1",
+      npm_config_cache: cacheDir,
+      NPM_CONFIG_CACHE: cacheDir,
+    },
+  });
+
+  if (result.status !== 0) {
+    process.exit(result.status ?? 1);
+  }
 }

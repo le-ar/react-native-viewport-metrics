@@ -1,9 +1,15 @@
 #!/usr/bin/env node
 
+import { spawnSync } from "node:child_process";
 import { mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { spawnSync } from "node:child_process";
+
+import {
+  assertPublishManifestIsSanitized,
+  cleanupPublishDirectory,
+  createPublishDirectory,
+} from "./publish-staging.mjs";
 
 const requiredPackageFiles = [
   "build/index.js",
@@ -41,68 +47,87 @@ const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
 const cacheDir = join(tmpdir(), "react-native-viewport-metrics-npm-cache");
 mkdirSync(cacheDir, { recursive: true });
 
-const result = spawnSync(
-  npmCommand,
-  ["pack", "--dry-run", "--json", "--ignore-scripts", "--cache", cacheDir],
-  {
-    cwd: process.cwd(),
-    encoding: "utf8",
-    env: {
-      ...process.env,
-      npm_config_cache: cacheDir,
-      NPM_CONFIG_CACHE: cacheDir,
+const { publishDir, publishManifest } = createPublishDirectory();
+
+try {
+  assertPublishManifestIsSanitized(publishManifest);
+
+  const result = spawnSync(
+    npmCommand,
+    [
+      "pack",
+      publishDir,
+      "--dry-run",
+      "--json",
+      "--ignore-scripts",
+      "--cache",
+      cacheDir,
+    ],
+    {
+      cwd: process.cwd(),
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        npm_config_cache: cacheDir,
+        NPM_CONFIG_CACHE: cacheDir,
+      },
     },
+  );
+
+  if (result.status !== 0) {
+    process.stdout.write(result.stdout ?? "");
+    process.stderr.write(result.stderr ?? "");
+    process.exit(result.status ?? 1);
   }
-);
 
-if (result.status !== 0) {
-  process.stdout.write(result.stdout ?? "");
-  process.stderr.write(result.stderr ?? "");
-  process.exit(result.status ?? 1);
-}
+  const packEntries = parsePackEntries(result.stdout ?? "");
+  const [packInfo] = packEntries;
 
-const packEntries = parsePackEntries(result.stdout ?? "");
-const [packInfo] = packEntries;
+  if (!packInfo?.files) {
+    process.stdout.write(result.stdout ?? "");
+    process.stderr.write(result.stderr ?? "");
+    throw new Error("Unable to read npm pack dry-run file list.");
+  }
 
-if (!packInfo?.files) {
-  process.stdout.write(result.stdout ?? "");
-  process.stderr.write(result.stderr ?? "");
-  throw new Error("Unable to read npm pack dry-run file list.");
-}
-
-const packageFiles = new Set(packInfo.files.map((file) => file.path));
-const missingFiles = requiredPackageFiles.filter(
-  (file) => !packageFiles.has(file)
-);
-
-if (missingFiles.length > 0) {
-  throw new Error(
-    `npm pack dry-run is missing required package files:\n${missingFiles
-      .map((file) => `- ${file}`)
-      .join("\n")}`
-  );
-}
-
-const forbiddenFiles = packInfo.files
-  .map((file) => file.path)
-  .filter((file) =>
-    forbiddenPackagePathPrefixes.some((prefix) => file.startsWith(prefix)) ||
-    forbiddenPackagePathSuffixes.some((suffix) => file.endsWith(suffix)) ||
-    forbiddenPackageFiles.includes(file)
+  const packageFiles = new Set(packInfo.files.map((file) => file.path));
+  const missingFiles = requiredPackageFiles.filter(
+    (file) => !packageFiles.has(file),
   );
 
-if (forbiddenFiles.length > 0) {
-  throw new Error(
-    `npm pack dry-run includes forbidden files:\n${forbiddenFiles
-      .slice(0, 20)
-      .map((file) => `- ${file}`)
-      .join("\n")}${forbiddenFiles.length > 20 ? "\n- ..." : ""}`
-  );
-}
+  if (missingFiles.length > 0) {
+    throw new Error(
+      `npm pack dry-run is missing required package files:\n${missingFiles
+        .map((file) => `- ${file}`)
+        .join("\n")}`,
+    );
+  }
 
-console.log(
-  `Verified npm pack dry-run includes ${packInfo.files.length} files: compiled JS/types, CJS/ESM entries, native sources, and release docs only.`
-);
+  const forbiddenFiles = packInfo.files
+    .map((file) => file.path)
+    .filter(
+      (file) =>
+        forbiddenPackagePathPrefixes.some((prefix) =>
+          file.startsWith(prefix),
+        ) ||
+        forbiddenPackagePathSuffixes.some((suffix) => file.endsWith(suffix)) ||
+        forbiddenPackageFiles.includes(file),
+    );
+
+  if (forbiddenFiles.length > 0) {
+    throw new Error(
+      `npm pack dry-run includes forbidden files:\n${forbiddenFiles
+        .slice(0, 20)
+        .map((file) => `- ${file}`)
+        .join("\n")}${forbiddenFiles.length > 20 ? "\n- ..." : ""}`,
+    );
+  }
+
+  console.log(
+    `Verified npm pack dry-run includes ${packInfo.files.length} files and a sanitized publish manifest without devDependencies or release scripts.`,
+  );
+} finally {
+  cleanupPublishDirectory(publishDir);
+}
 
 function parsePackEntries(output) {
   for (
