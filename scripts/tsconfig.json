@@ -1,0 +1,11 @@
+{
+  "extends": "expo-module-scripts/tsconfig.node",
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
+    "declaration": false,
+    "outDir": "./build"
+  },
+  "include": ["./**/*.mjs"],
+  "exclude": ["build"]
+}

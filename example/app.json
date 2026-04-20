@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "Viewport Metrics Example",
+    "slug": "viewport-metrics-example",
+    "version": "1.0.0",
+    "orientation": "default",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.example.viewportmetrics"
+    },
+    "android": {
+      "package": "com.example.viewportmetrics"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a341b294-aa29-4bcb-915e-3286dc66be69"
+      }
+    },
+    "owner": "le-ar"
+  }
+}

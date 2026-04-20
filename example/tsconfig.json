@@ -1,0 +1,10 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "react-native-viewport-metrics": ["../src/index"],
+      "react-native-viewport-metrics/*": ["../src/*"]
+    }
+  }
+}

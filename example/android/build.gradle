@@ -1,0 +1,36 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+def resolveNodePackagePath = { packageName ->
+  def script = "try { process.stdout.write(require.resolve('${packageName}/package.json', { paths: [process.argv[1]] })); } catch (e) {}"
+  def resolvedPath = ["node", "-e", script, rootDir.getParentFile().getAbsolutePath()].execute(null, rootDir).text.trim()
+  return resolvedPath ? new File(resolvedPath).getParentFile() : null
+}
+
+def detoxPackagePath = resolveNodePackagePath("detox")
+def detoxMavenPath = detoxPackagePath ? new File(detoxPackagePath, "Detox-android") : null
+
+buildscript {
+  repositories {
+    google()
+    mavenCentral()
+  }
+  dependencies {
+    classpath('com.android.tools.build:gradle')
+    classpath('com.facebook.react:react-native-gradle-plugin')
+    classpath('org.jetbrains.kotlin:kotlin-gradle-plugin')
+  }
+}
+
+allprojects {
+  repositories {
+    google()
+    mavenCentral()
+    maven { url 'https://www.jitpack.io' }
+    if (detoxMavenPath != null) {
+      maven { url detoxMavenPath }
+    }
+  }
+}
+
+apply plugin: "expo-root-project"
+apply plugin: "com.facebook.react.rootproject"

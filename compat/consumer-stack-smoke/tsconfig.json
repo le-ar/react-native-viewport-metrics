@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "noEmit": true,
+    "outDir": "./build",
+    "paths": {
+      "react-native-viewport-metrics": ["../../src/index.ts"]
+    }
+  },
+  "include": ["./index.tsx"]
+}

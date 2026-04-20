@@ -1,0 +1,58 @@
+{
+  "name": "react-native-viewport-metrics-example",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start",
+    "start:detox": "CI=1 expo start --dev-client --port 8081",
+    "prebuild:android": "expo prebuild --platform android --no-install",
+    "prebuild:ios": "expo prebuild --platform ios --no-install",
+    "build:native:android": "cd android && ./gradlew app:assembleRelease -Pandroid.enableMinifyInReleaseBuilds=true -Pandroid.enableShrinkResourcesInReleaseBuilds=true",
+    "build:native:ios": "cd ios && pod install && xcodebuild -workspace ViewportMetricsExample.xcworkspace -scheme ViewportMetricsExample -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath build/release CODE_SIGNING_ALLOWED=NO",
+    "build:debug:android": "cd android && ./gradlew app:assembleDebug -PreactNativeArchitectures=${ANDROID_DEV_ARCHITECTURES:-arm64-v8a}",
+    "build:debug:ios": "cd ios && pod install && xcodebuild -workspace ViewportMetricsExample.xcworkspace -scheme ViewportMetricsExample -configuration Debug -sdk iphonesimulator -destination \"platform=iOS Simulator,name=${IOS_SIMULATOR_DEVICE:-iPhone 16 Pro},OS=${IOS_SIMULATOR_OS:-18.1}\" -derivedDataPath build/expo-dev ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO",
+    "build:expo-dev:android": "npm run build:debug:android",
+    "build:expo-dev:ios": "npm run build:debug:ios",
+    "build:eas-local:android": "npm --prefix .. run release:build:eas-local:android",
+    "build:eas-local:ios": "npm --prefix .. run release:build:eas-local:ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "open:android": "open -a \"Android Studio\" android",
+    "open:ios": "xed ios"
+  },
+  "dependencies": {
+    "expo": "^55.0.15",
+    "expo-dev-client": "~55.0.27",
+    "expo-navigation-bar": "^55.0.12",
+    "expo-screen-orientation": "^55.0.13",
+    "expo-status-bar": "^55.0.5",
+    "react": "19.2.0",
+    "react-native": "0.83.4",
+    "react-native-launch-arguments": "^4.1.1",
+    "react-native-reanimated": "^4.3.0",
+    "react-native-viewport-metrics": "file:..",
+    "react-native-worklets": "^0.8.1"
+  },
+  "devDependencies": {
+    "babel-preset-expo": "~55.0.17"
+  },
+  "expo": {
+    "doctor": {
+      "appConfigFieldsNotSyncedCheck": {
+        "enabled": false
+      },
+      "reactNativeDirectoryCheck": {
+        "exclude": [
+          "react-native-launch-arguments"
+        ]
+      }
+    },
+    "install": {
+      "exclude": [
+        "react-native-reanimated",
+        "react-native-worklets"
+      ]
+    }
+  }
+}
