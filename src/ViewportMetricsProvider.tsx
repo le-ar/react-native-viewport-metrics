@@ -240,7 +240,6 @@ export function ViewportMetricsProvider({
       value={isUiThreadDriven ? sharedState : null}
     >
       <View style={[styles.root, style]}>
-        {children}
         <AnimatedViewportMetricsView
           key={workletEventHandler ? `worklet-${version}` : "provider"}
           collapsable={false}
@@ -248,6 +247,7 @@ export function ViewportMetricsProvider({
           style={styles.nativeProvider}
           onSnapshot={workletEventHandler}
         />
+        {children}
       </View>
     </ViewportSharedStateContext.Provider>
   );

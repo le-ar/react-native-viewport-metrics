@@ -1,6 +1,6 @@
 {
   "name": "react-native-viewport-metrics",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Coherent native viewport metrics snapshots for React Native and Expo.",
   "main": "./build/cjs/index.js",
   "module": "./build/index.js",

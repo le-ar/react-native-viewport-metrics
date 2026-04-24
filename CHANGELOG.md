@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.2
+
+- Render the native absolute-fill metrics view before provider children so the
+  metrics layer stays behind consumer UI while continuing to receive snapshots.
+
 ## 0.1.1
 
 - Publish from a temporary staging directory with a sanitized `package.json` so
