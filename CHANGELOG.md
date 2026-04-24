@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3
+
+- Force `release:publish` to run release verification in a non-interactive
+  environment so Expo module test and typecheck steps do not enter watch mode.
+
 ## 0.1.2
 
 - Render the native absolute-fill metrics view before provider children so the

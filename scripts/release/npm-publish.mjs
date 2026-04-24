@@ -13,6 +13,10 @@ import {
 const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
 const cacheDir = join(tmpdir(), "react-native-viewport-metrics-npm-cache");
 mkdirSync(cacheDir, { recursive: true });
+const nonInteractiveEnv = {
+  CI: "1",
+  EXPO_NONINTERACTIVE: "1",
+};
 
 runNpm(["run", "release:verify:unit"]);
 runNpm(["run", "release:pack"]);
@@ -36,6 +40,7 @@ try {
       encoding: "utf8",
       env: {
         ...process.env,
+        ...nonInteractiveEnv,
         REACT_NATIVE_VIEWPORT_METRICS_ALLOW_PUBLISH: "1",
         npm_config_cache: cacheDir,
         NPM_CONFIG_CACHE: cacheDir,
@@ -59,6 +64,7 @@ function runNpm(args) {
     stdio: "inherit",
     env: {
       ...process.env,
+      ...nonInteractiveEnv,
       REACT_NATIVE_VIEWPORT_METRICS_ALLOW_PUBLISH: "1",
       npm_config_cache: cacheDir,
       NPM_CONFIG_CACHE: cacheDir,
